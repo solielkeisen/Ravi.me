@@ -1,6 +1,6 @@
 # Ravi Raj — Personal Blog
 
-Musings on technology, business, and life. Hosted on GitHub Pages at [raviraj.qd.je](https://raviraj.qd.je).
+This is my simple and low-effort personal portfolio+Blog website.
 
 ## How it works
 
