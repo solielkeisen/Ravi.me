@@ -39,3 +39,7 @@ So, the lines of Swami Vivekananda ji, prove to be wrong here.
 Because in India, the weaker you are economically and socially, the stronger you become politically.
 
 Under the Modi-Shah BJP, the weak have a place in India; and it's on the  50% of reserved seats in Government jobs and Educational institutions, and it comes with the right to abuse the Upper Caste Hindu's and the Muslims pari passu.
+
+      <hr>
+                    
+                    <p>Find me on <a href="https://www.linkedin.com/in/ravirajlaw/">LinkedIn</a> & <a href="https://x.com/RaviRaj91HQ">Twitter</a>.</p>
