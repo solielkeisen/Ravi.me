@@ -4,7 +4,6 @@ date: 2026-09-08
 description: Being more weak in India is a super power. The weaker you show yourself, the more the government will try to empower you.
 ---
 
-Why is the race to backwardness India's biggest nightmare?
 
 When I see the race to be more Backward in India, I think of what Swami Vivekananda ji said:
 
