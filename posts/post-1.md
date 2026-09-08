@@ -15,7 +15,7 @@ The weaker you show yourself, the more the government will try to empower you.
 
 The stronger you are, the more your government will try to undermine you, disrespect you, and you will be hated by weaker communities.
 
-Look at the Brahmins
+Look at the Brahmins:
 
 They are considered to be thought leaders, fairly well economically, and are at the top of the varnas.
 
