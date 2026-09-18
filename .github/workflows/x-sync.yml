@@ -1,9 +1,18 @@
-name: Sync latest post from X
+name: Sync post from X
 
 on:
   schedule:
     - cron: '0 * * * *'
   workflow_dispatch:
+    inputs:
+      text:
+        description: 'Tweet text to publish (manual testing)'
+        required: false
+        type: string
+      id:
+        description: 'Tweet ID (for dedup)'
+        required: false
+        type: string
   repository_dispatch:
     types: [x-post]
 
@@ -24,6 +33,10 @@ jobs:
 
       - name: Sync latest post from X
         env:
+          X_POST_TEXT: ${{ github.event.client_payload.text || inputs.text }}
+          X_POST_ID: ${{ github.event.client_payload.id || inputs.id }}
+          X_POST_DATE: ${{ github.event.client_payload.date }}
+          X_POST_IMAGES: ${{ github.event.client_payload.images }}
           X_HANDLE: RaviRaj91HQ
           X_RSS_URL: https://rsshub.app/twitter/user/RaviRaj91HQ
           X_API_TOKEN: ${{ secrets.X_API_TOKEN }}

@@ -7,6 +7,11 @@ const HANDLE = process.env.X_HANDLE || 'RaviRaj91HQ';
 const RSS_URL = process.env.X_RSS_URL || '';
 const API_TOKEN = process.env.X_API_TOKEN || '';
 
+const DISPATCH_TEXT = process.env.X_POST_TEXT || '';
+const DISPATCH_ID = process.env.X_POST_ID || '';
+const DISPATCH_DATE = process.env.X_POST_DATE || '';
+const DISPATCH_IMAGES = (process.env.X_POST_IMAGES || '').split(',').map((s) => s.trim()).filter(Boolean);
+
 const log = (...a) => console.log('[x-sync]', ...a);
 const err = (...a) => console.error('[x-sync]', ...a);
 
@@ -177,11 +182,23 @@ ${body.trim()}
 };
 
 const main = async () => {
-  if (!RSS_URL && !API_TOKEN) {
-    throw new Error('Set X_RSS_URL (RSS feed) or X_API_TOKEN (X API)');
+  let posts = [];
+
+  if (DISPATCH_TEXT) {
+    posts = [{
+      id: DISPATCH_ID || `dispatch-${Date.now()}`,
+      text: DISPATCH_TEXT,
+      date: DISPATCH_DATE,
+      images: DISPATCH_IMAGES,
+    }];
+  } else {
+    if (!RSS_URL && !API_TOKEN) {
+      throw new Error('Set X_RSS_URL (RSS feed) or X_API_TOKEN (X API)');
+    }
+    posts = API_TOKEN ? await fetchFromApi() : await fetchFromRss();
   }
-  const posts = API_TOKEN ? await fetchFromApi() : await fetchFromRss();
-  if (!posts.length) throw new Error('No posts returned from source');
+
+  if (!posts.length) throw new Error('No post to sync');
 
   const state = loadState();
   const newest = posts[0];
