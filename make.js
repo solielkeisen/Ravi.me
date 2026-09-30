@@ -55,7 +55,114 @@ const formatFullDate = (iso) => {
   return `${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
 };
 
-const shell = ({ cssPath, homePath, blogPath, imgPath, faviconPath, title, description, activeNav, canonical, jsonLd }) => `
+/* Table of contents -------------------------------------------------- */
+
+const TOC_MIN_ENTRIES = 2;
+const TOC_MAX_DEPTH = 4;
+
+const stripTags = (s) => String(s).replace(/<[^>]+>/g, '');
+
+const NAMED_ENTITIES = { nbsp: ' ', amp: '&', lt: '<', gt: '>', quot: '"', apos: "'" };
+
+// Single pass so an already-escaped entity is never decoded twice.
+const decodeEntities = (s) =>
+  String(s).replace(/&(#x?[0-9a-f]+|[a-z]+);/gi, (match, body) => {
+    if (body[0] === '#') {
+      const code =
+        body[1] === 'x' || body[1] === 'X'
+          ? parseInt(body.slice(2), 16)
+          : parseInt(body.slice(1), 10);
+      return Number.isFinite(code) && code > 0 ? String.fromCodePoint(code) : match;
+    }
+    const named = NAMED_ENTITIES[body.toLowerCase()];
+    return named === undefined ? match : named;
+  });
+
+const htmlToText = (s) => decodeEntities(stripTags(s)).trim();
+
+// Unicode-aware so non-Latin headings (the Hindi ones) keep readable anchors.
+// \p{M} keeps Devanagari vowel signs attached to their consonants; without it
+// "दोगलापन" would shatter into "द-गल-पन".
+const slugifyHeading = (s) =>
+  (s || '')
+    .normalize('NFC')
+    .toLowerCase()
+    .trim()
+    .replace(/[^\p{L}\p{N}\p{M}]+/gu, '-')
+    .replace(/(^-+|-+$)/g, '') || 'section';
+
+// Walk the *rendered* HTML so the ids we inject and the ids we link to come
+// from the same pass and can never drift apart. Fenced code is already escaped
+// by marked, so a literal "<h2>" inside a code block can't match here.
+const buildToc = (html) => {
+  const seen = {};
+  const entries = [];
+
+  const out = html.replace(
+    /<h([1-6])(\s[^>]*)?>([\s\S]*?)<\/h\1>/g,
+    (match, level, attrs, inner) => {
+      const text = htmlToText(inner);
+      if (!text) return match;
+
+      const base = slugifyHeading(text);
+      seen[base] = (seen[base] || 0) + 1;
+      const id = seen[base] > 1 ? `${base}-${seen[base]}` : base;
+
+      entries.push({ id, text, depth: Number(level) });
+      return `<h${level}${attrs || ''} id="${id}">${inner}</h${level}>`;
+    }
+  );
+
+  return { html: out, entries };
+};
+
+const buildTocTree = (items) => {
+  const root = [];
+  const stack = [{ depth: 0, children: root }];
+
+  for (const item of items) {
+    while (stack.length > 1 && stack[stack.length - 1].depth >= item.depth) stack.pop();
+    const node = { ...item, children: [] };
+    stack[stack.length - 1].children.push(node);
+    stack.push(node);
+  }
+
+  return root;
+};
+
+const renderTocList = (nodes) =>
+  `<ul>${nodes
+    .map(
+      (node) =>
+        `<li><a href="#${node.id}">${escapeHtml(node.text)}</a>${
+          node.children.length ? renderTocList(node.children) : ''
+        }</li>`
+    )
+    .join('')}</ul>`;
+
+const renderToc = (entries) => {
+  const items = entries.filter((e) => e.depth >= 2 && e.depth <= TOC_MAX_DEPTH);
+  if (items.length < TOC_MIN_ENTRIES) return '';
+
+  // Rendered outside the container: on wide screens it sits in the left margin
+  // beside the article, on narrow screens it becomes a drawer behind a
+  // hamburger button.
+  return `
+    <nav class="toc" id="toc" aria-labelledby="toc-heading">
+        <div class="toc-header">
+            <h2 class="toc-title" id="toc-heading">Contents</h2>
+            <button type="button" class="toc-close" aria-label="Hide contents">&times;</button>
+        </div>
+        <div class="toc-list" id="toc-list">${renderTocList(buildTocTree(items))}</div>
+    </nav>
+    <button type="button" class="toc-fab" id="toc-fab" aria-label="Show contents" aria-expanded="false" aria-controls="toc">
+        <span></span><span></span><span></span>
+    </button>
+    <div class="toc-scrim" id="toc-scrim" hidden></div>
+`;
+};
+
+const shell = ({ cssPath, homePath, blogPath, imgPath, faviconPath, title, description, activeNav, canonical, jsonLd, tocBlock = '', script = '' }) => `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -73,12 +180,14 @@ const shell = ({ cssPath, homePath, blogPath, imgPath, faviconPath, title, descr
     <link rel="canonical" href="${canonical}">
     ${jsonLd ? `<script type="application/ld+json">${jsonLd}</script>` : ''}
     <link rel="stylesheet" href="${cssPath}">
-    <link rel="icon" type="image/jpeg" href="${faviconPath}">
+    <link rel="icon" type="image/jpeg" href="${faviconPath}">${script ? `
+    <script src="${script}" defer></script>` : ''}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body>
+<body>${tocBlock ? `
+    ${tocBlock.trim()}` : ''}
     <section class="container wrap">
         <div class="header">
             <div class="logo">
@@ -182,7 +291,8 @@ const renderListing = (posts) => {
 
 const renderPost = (post) => {
   const url = `${SITE_URL}/post/${post.slug}/`;
-  const html = marked.parse(post.body.replace(/^# .+\n+/, ''));
+  const { html, entries } = buildToc(marked.parse(post.body.replace(/^# .+\n+/, '')));
+  const toc = renderToc(entries);
 
   const body = `
             <article class="post">
@@ -200,11 +310,14 @@ const renderPost = (post) => {
     blogPath: '../../blog.html',
     imgPath: '../../images/ravi.jpeg',
     faviconPath: '../../images/favicon.jpeg',
+    // Only ship the script when there is actually a contents panel to drive.
+    script: toc ? '../../js/toc.js' : '',
     title: `${post.title} - ${SITE_TITLE}`,
     description: escapeHtml(post.description || post.title),
     activeNav: 'musings',
     canonical: url,
     jsonLd: articleJsonLd(post),
+    tocBlock: toc,
   }).replace('{{BODY}}', body);
 };
 
