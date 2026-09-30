@@ -5,7 +5,7 @@ const marked = require('./marked.min.js');
 const CNAME = fs.existsSync('./CNAME') ? fs.readFileSync('./CNAME', 'utf-8').trim() : '';
 const SITE_URL = (
   process.env.SITE_URL ||
-  (CNAME ? `https://${CNAME}` : 'https://pacifista91.github.io/Ravi.me')
+  (CNAME ? `https://${CNAME}` : 'https://solielkeisen.github.io/Ravi.me')
 ).replace(/\/$/, '');
 const SITE_TITLE = 'Ravi Raj';
 const SITE_TAGLINE = 'Politics, Culture & Calculated Contradictions';
