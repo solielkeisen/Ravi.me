@@ -529,9 +529,7 @@ body.has-toc-drawer {
     text-transform: uppercase;
     letter-spacing: 0.6px;
     color: var(--main-color);
-    padding-bottom: 10px;
     margin-bottom: 12px;
-    border-bottom: 1px solid var(--border-color);
 }
 
 .appearance-group + .appearance-group {
