@@ -529,7 +529,9 @@ body.has-toc-drawer {
     text-transform: uppercase;
     letter-spacing: 0.6px;
     color: var(--main-color);
-    margin-bottom: 12px;
+    /* Wider than the gap between the two control groups below, so the
+       heading still reads as the parent of both. */
+    margin-bottom: 20px;
 }
 
 .appearance-group + .appearance-group {
