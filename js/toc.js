@@ -16,6 +16,40 @@
   var closeBtn = toc.querySelector('.toc-close');
   var lastFocused = null;
 
+  /* --- Align under the post heading -------------------------------------
+     The panel lives in the left margin, so line its top up with the bottom of
+     the post header rather than guessing a fixed offset that breaks as soon as
+     the title wraps to a second line. */
+
+  function alignToHeading() {
+    if (!window.matchMedia('(min-width: 1240px)').matches) {
+      document.documentElement.style.removeProperty('--toc-top');
+      return;
+    }
+
+    var header = document.querySelector('.post-header');
+    if (!header) return;
+
+    var gap = 20;
+    var offset = Math.round(header.getBoundingClientRect().bottom + gap);
+
+    // Don't push it past the fold on a short viewport.
+    var maxOffset = Math.max(20, window.innerHeight - 120);
+    document.documentElement.style.setProperty(
+      '--toc-top',
+      Math.min(offset, maxOffset) + 'px'
+    );
+  }
+
+  alignToHeading();
+  window.addEventListener('resize', alignToHeading);
+  window.addEventListener('load', alignToHeading);
+
+  // A late webfont swap changes the header height.
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(alignToHeading);
+  }
+
   /* --- Drawer --------------------------------------------------------- */
 
   function setOpen(open) {
@@ -58,6 +92,7 @@
   // Growing past the breakpoint parks the panel back in the margin.
   window.matchMedia('(max-width: 1239px)').addEventListener('change', function (e) {
     if (!e.matches) setOpen(false);
+    alignToHeading();
   });
 
   /* --- Scrollspy ------------------------------------------------------

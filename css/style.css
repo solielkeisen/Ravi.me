@@ -278,12 +278,14 @@ article.post .title {
 
 .toc {
     position: fixed;
-    top: 20px;
+    /* js/toc.js lines this up under the post heading; the fallback keeps it
+       near the top before the script runs (and if it never runs). */
+    top: var(--toc-top, 20px);
     width: var(--toc-width);
     /* container is --max-width and centred, so its left edge is 50% - max/2.
        Step back by the gap + panel width to land in the margin beside it. */
     left: calc(50% - var(--max-width) / 2 - var(--toc-gap) - var(--toc-width));
-    max-height: calc(100vh - 40px);
+    max-height: calc(100vh - var(--toc-top, 20px) - 20px);
     overflow-y: auto;
     overscroll-behavior: contain;
     padding: 4px 0 16px;
@@ -385,8 +387,6 @@ article.post .title {
     padding: 0;
     align-items: center;
     justify-content: center;
-    flex-direction: column;
-    gap: 5px;
     background-color: #fff;
     border: 1px solid var(--border-color);
     border-radius: 6px;
@@ -394,12 +394,15 @@ article.post .title {
     cursor: pointer;
 }
 
-.toc-fab span {
+.toc-fab:hover {
+    background-color: #f6f8fa;
+}
+
+.toc-fab svg {
     display: block;
-    width: 19px;
-    height: 2px;
-    background-color: var(--main-color);
-    border-radius: 2px;
+    width: 20px;
+    height: 20px;
+    color: var(--main-color);
 }
 
 .toc-scrim {

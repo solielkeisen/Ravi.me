@@ -60,6 +60,13 @@ const formatFullDate = (iso) => {
 const TOC_MIN_ENTRIES = 2;
 const TOC_MAX_DEPTH = 4;
 
+// Vector 2022's menu glyph, inlined rather than hotlinked so the button keeps
+// working offline and from a local file. Wikimedia Foundation, CC BY-SA 4.0.
+const WIKIPEDIA_MENU_ICON =
+  '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false">' +
+  '<path fill="currentColor" d="M1 3h18v2H1zm0 6h18v2H1zm0 6h18v2H1z"/>' +
+  '</svg>';
+
 const stripTags = (s) => String(s).replace(/<[^>]+>/g, '');
 
 const NAMED_ENTITIES = { nbsp: ' ', amp: '&', lt: '<', gt: '>', quot: '"', apos: "'" };
@@ -156,7 +163,7 @@ const renderToc = (entries) => {
         <div class="toc-list" id="toc-list">${renderTocList(buildTocTree(items))}</div>
     </nav>
     <button type="button" class="toc-fab" id="toc-fab" aria-label="Show contents" aria-expanded="false" aria-controls="toc">
-        <span></span><span></span><span></span>
+        ${WIKIPEDIA_MENU_ICON}
     </button>
     <div class="toc-scrim" id="toc-scrim" hidden></div>
 `;
