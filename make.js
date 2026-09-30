@@ -169,7 +169,43 @@ const renderToc = (entries) => {
 `;
 };
 
-const shell = ({ cssPath, homePath, blogPath, imgPath, faviconPath, title, description, activeNav, canonical, jsonLd, tocBlock = '', script = '' }) => `
+// Mirrors the contents panel across the article. Desktop only - the
+// breakpoint drops it because the right margin collapses into the drawer.
+const APPEARANCE_PANEL = `
+    <aside class="appearance" id="appearance" aria-labelledby="appearance-heading">
+        <h2 class="appearance-title" id="appearance-heading">Appearance</h2>
+        <div class="appearance-group">
+            <span class="appearance-label" id="text-size-label">Text size</span>
+            <div class="appearance-controls" role="group" aria-labelledby="text-size-label">
+                <button type="button" class="appearance-btn" data-size="-1" aria-label="Decrease text size">&minus;</button>
+                <button type="button" class="appearance-btn" data-size="1" aria-label="Increase text size">+</button>
+            </div>
+        </div>
+        <div class="appearance-group">
+            <span class="appearance-label" id="colour-label">Colour</span>
+            <div class="appearance-controls" role="group" aria-labelledby="colour-label">
+                <button type="button" class="appearance-btn" data-theme-choice="light" aria-pressed="true">Light</button>
+                <button type="button" class="appearance-btn" data-theme-choice="dark" aria-pressed="false">Dark</button>
+            </div>
+        </div>
+    </aside>
+`;
+
+// Runs before first paint so a stored dark theme or text size never flashes
+// the light default on the way in.
+const APPEARANCE_BOOTSTRAP = `
+    <script>
+    (function () {
+        try {
+            var theme = localStorage.getItem('appearance-theme');
+            if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+            var size = localStorage.getItem('appearance-size');
+            if (size) document.documentElement.style.setProperty('--font-scale', size);
+        } catch (e) { /* private mode, or storage disabled - defaults are fine */ }
+    })();
+    </script>`;
+
+const shell = ({ cssPath, homePath, blogPath, imgPath, faviconPath, title, description, activeNav, canonical, jsonLd, tocBlock = '', appearanceBlock = '', scripts = [] }) => `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -187,14 +223,15 @@ const shell = ({ cssPath, homePath, blogPath, imgPath, faviconPath, title, descr
     <link rel="canonical" href="${canonical}">
     ${jsonLd ? `<script type="application/ld+json">${jsonLd}</script>` : ''}
     <link rel="stylesheet" href="${cssPath}">
-    <link rel="icon" type="image/jpeg" href="${faviconPath}">${script ? `
-    <script src="${script}" defer></script>` : ''}
+    <link rel="icon" type="image/jpeg" href="${faviconPath}">${scripts.map((src) => `
+    <script src="${src}" defer></script>`).join('')}${APPEARANCE_BOOTSTRAP}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>${tocBlock ? `
-    ${tocBlock.trim()}` : ''}
+    ${tocBlock.trim()}` : ''}${appearanceBlock ? `
+    ${appearanceBlock.trim()}` : ''}
     <section class="container wrap">
         <div class="header">
             <div class="logo">
@@ -317,14 +354,16 @@ const renderPost = (post) => {
     blogPath: '../../blog.html',
     imgPath: '../../images/ravi.jpeg',
     faviconPath: '../../images/favicon.jpeg',
-    // Only ship the script when there is actually a contents panel to drive.
-    script: toc ? '../../js/toc.js' : '',
+    // Only ship these when there is actually a contents panel to drive.
+    scripts: toc ? ['../../js/toc.js', '../../js/appearance.js'] : [],
     title: `${post.title} - ${SITE_TITLE}`,
     description: escapeHtml(post.description || post.title),
     activeNav: 'musings',
     canonical: url,
     jsonLd: articleJsonLd(post),
     tocBlock: toc,
+    // Pairs with the contents panel: same pages, opposite margin.
+    appearanceBlock: toc ? APPEARANCE_PANEL : '',
   }).replace('{{BODY}}', body);
 };
 

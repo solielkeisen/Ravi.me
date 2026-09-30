@@ -14,6 +14,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <meta name="description" content="Politics, Culture & Calculated Contradictions - My unapologetic thoughts on Politics, Law, and everything in between.">
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" type="image/jpeg" href="images/favicon.jpeg">
+    <script>
+    // Applies a stored text size / dark theme before first paint. Kept in
+    // sync with APPEARANCE_BOOTSTRAP in make.js.
+    (function () {
+        try {
+            var theme = localStorage.getItem('appearance-theme');
+            if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+            var size = localStorage.getItem('appearance-size');
+            if (size) document.documentElement.style.setProperty('--font-scale', size);
+        } catch (e) { /* private mode, or storage disabled - defaults are fine */ }
+    })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">

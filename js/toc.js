@@ -22,7 +22,7 @@
      the title wraps to a second line. */
 
   function alignToHeading() {
-    if (!window.matchMedia('(min-width: 1240px)').matches) {
+    if (!window.matchMedia('(min-width: 1300px)').matches) {
       document.documentElement.style.removeProperty('--toc-top');
       return;
     }
@@ -90,7 +90,7 @@
   });
 
   // Growing past the breakpoint parks the panel back in the margin.
-  window.matchMedia('(max-width: 1239px)').addEventListener('change', function (e) {
+  window.matchMedia('(max-width: 1299px)').addEventListener('change', function (e) {
     if (!e.matches) setOpen(false);
     alignToHeading();
   });
