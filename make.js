@@ -235,7 +235,7 @@ const shell = ({ cssPath, homePath, blogPath, imgPath, faviconPath, title, descr
     <section class="container wrap">
         <div class="header">
             <div class="logo">
-                <a href="${homePath}"><img src="${imgPath}" alt="Ravi Raj" class="photo"></a>
+                <a href="${homePath}"><img src="${imgPath}" alt="Ravi Raj" class="photo" width="80" height="80" decoding="async"></a>
                 <div>
                     <h1><a href="${homePath}">${SITE_TITLE}</a></h1>
                     <p class="tagline">${SITE_TAGLINE}</p>
