@@ -1,40 +1,46 @@
-# Ravi Raj — Personal Blog
+# Ravi Raj — Personal Portfolio and Blog
 
-This is my simple and low-effort personal portfolio+Blog website.
+This repository contains the website renderer and static portfolio pages. Blog
+content lives in [Ravi.me-content](https://github.com/solielkeisen/Ravi.me-content),
+so posts and attachments can be uploaded without changing the website code.
 
-## How it works
+## How updates work
 
-Posts are written in Markdown (`posts/*.md`) and rendered into static HTML pages by `make.js` — which runs automatically on every push via the GitHub Action, so you never have to build locally.
+The GitHub Actions workflow checks out the content repository's `main` branch,
+then `make.js` generates the crawlable post pages and site indexes. A push to
+this repository's `main` branch also triggers a build. Generated files are
+committed back to `main` for GitHub Pages to publish.
 
-Each push generates:
+The content repository's notification workflow dispatches a build here after
+each content push. To enable it, add a fine-grained personal access token as the
+`WEBSITE_REPO_TOKEN` Actions secret in `Ravi.me-content`. Grant that token
+**Contents: read and write** access to `solielkeisen/Ravi.me`. The content repo
+workflow uses it only to request a website rebuild.
 
-- `post/<slug>/index.html` — one crawlable page per post, with meta tags, canonical URL, and JSON-LD Article schema
-- `blog.html` — the musings listing
-- `sitemap.xml`, `llms.txt`, `posts.json`
-- `index.html` — homepage with JSON-LD Person schema
+## Publishing content
 
-## Adding a post
+In `Ravi.me-content`:
 
-1. Create `posts/<slug>.md`:
+- Add Markdown posts as `posts/<slug>.md`.
+- Upload images and other files to `attachments/`.
+- Link an attachment from a post using a path relative to `posts/`, for example
+  `![Alt text](../attachments/photo.jpg)`.
+- Commit changes to `main`; the website rebuild and GitHub Pages publish happen
+  automatically.
 
-```markdown
----
-title: "My Post"
-date: "2026-09-01"
-description: "One-line excerpt"
-slug: "my-post"   # optional; defaults to a slug derived from the title
----
-
-Your markdown content here.
-```
-
-2. Commit and push. Nothing else needed — the GitHub Action regenerates the static site, and GitHub Pages redeploys.
-
-Optionally build locally to preview: `node make` (requires the vendored `marked.min.js`, no extra packages).
+Post front matter supports `title`, `date` (`YYYY-MM-DD`), `description`, and
+an optional `slug`. If omitted, the slug is generated from the title.
 
 ## Local preview
 
+Clone the public content repository into `content/` next to `make.js`, then run:
+
 ```bash
+git clone https://github.com/solielkeisen/Ravi.me-content.git content
+CONTENT_DIR=content node make.js
 python3 -m http.server 8000
-# open http://localhost:8000/blog.html
 ```
+
+Open <http://localhost:8000/> to preview the homepage or
+<http://localhost:8000/blog.html> to preview the post list. `marked.min.js` is
+vendored, so no package installation is needed.

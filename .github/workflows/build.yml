@@ -3,9 +3,16 @@ name: Build static site
 on:
   push:
     branches: [main]
+  repository_dispatch:
+    types: [content-updated]
+  workflow_dispatch:
 
 permissions:
   contents: write
+
+concurrency:
+  group: static-site-build
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -14,13 +21,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Checkout website content
+        uses: actions/checkout@v4
+        with:
+          repository: solielkeisen/Ravi.me-content
+          ref: main
+          path: content
+          persist-credentials: false
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
       - name: Generate static pages
-        run: node make
+        run: CONTENT_DIR=content node make
 
       - name: Commit generated site
         run: |

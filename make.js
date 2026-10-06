@@ -12,7 +12,9 @@ const SITE_TAGLINE = 'Politics, Culture & Calculated Contradictions';
 const SITE_DESCRIPTION = 'An assorted collection of thoughts on technology, business, and life.';
 const BLOG_BYLINE = 'My unapologetic thoughts on Politics, Law, and Lies.';
 const AUTHOR = 'Ravi Raj';
-const POSTS_DIR = './posts';
+const CONTENT_DIR = process.env.CONTENT_DIR || './content';
+const POSTS_DIR = path.join(CONTENT_DIR, 'posts');
+const ATTACHMENTS_DIR = path.join(CONTENT_DIR, 'attachments');
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 const parseFrontMatter = (content) => {
@@ -261,6 +263,10 @@ const homeUrl = `${SITE_URL}/`;
 const blogUrl = `${SITE_URL}/blog.html`;
 
 const readPosts = () => {
+  if (!fs.existsSync(POSTS_DIR)) {
+    throw new Error(`Posts directory not found: ${POSTS_DIR}`);
+  }
+
   const posts = [];
   for (const file of fs.readdirSync(POSTS_DIR)) {
     if (!file.endsWith('.md')) continue;
@@ -335,7 +341,10 @@ const renderListing = (posts) => {
 
 const renderPost = (post) => {
   const url = `${SITE_URL}/post/${post.slug}/`;
-  const { html, entries } = buildToc(marked.parse(post.body.replace(/^# .+\n+/, '')));
+  const rendered = marked.parse(post.body.replace(/^# .+\n+/, ''));
+  const { html, entries } = buildToc(
+    rendered.replace(/((?:src|href)=["'])\.\.\/attachments\//g, '$1../../attachments/')
+  );
   const toc = renderToc(entries);
 
   const body = `
@@ -394,7 +403,16 @@ ${posts.map((p) => `- [${p.title}](${SITE_URL}/post/${p.slug}/)${p.description ?
 `;
 
 const main = () => {
+  if (!fs.existsSync(ATTACHMENTS_DIR)) {
+    throw new Error(`Attachments directory not found: ${ATTACHMENTS_DIR}`);
+  }
+
   const posts = readPosts();
+  fs.rmSync('./attachments', { recursive: true, force: true });
+  fs.cpSync(ATTACHMENTS_DIR, './attachments', {
+    recursive: true,
+    filter: (source) => path.basename(source) !== '.gitkeep',
+  });
 
   const listing = renderListing(posts);
   const sitemap = renderSitemap(posts);
