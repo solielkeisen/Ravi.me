@@ -12,10 +12,7 @@ this repository's `main` branch also triggers a build. Generated files are
 committed back to `main` for GitHub Pages to publish.
 
 The content repository's notification workflow dispatches a build here after
-each content push. To enable it, add a fine-grained personal access token as the
-`WEBSITE_REPO_TOKEN` Actions secret in `Ravi.me-content`. Grant that token
-**Contents: read and write** access to `solielkeisen/Ravi.me`. The content repo
-workflow uses it only to request a website rebuild.
+each content push. The website is then regenerated and published automatically.
 
 ## Publishing content
 
