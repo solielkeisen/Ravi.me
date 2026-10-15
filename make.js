@@ -294,7 +294,7 @@ const articleJsonLd = (post) =>
     publisher: { '@type': 'Person', name: AUTHOR, url: homeUrl },
     datePublished: post.date,
     dateModified: post.date,
-    mainEntityOfPage: `${SITE_URL}/post/${post.slug}/`,
+    mainEntityOfPage: `${SITE_URL}/p/${post.slug}/`,
   });
 
 const renderListing = (posts) => {
@@ -308,7 +308,7 @@ const renderListing = (posts) => {
                     <span class="year">${formatYear(post.date)}</span>
                 </div>
                 <div class="body">
-                    <h4 class="title"><a href="post/${post.slug}/">${escapeHtml(post.title)}</a></h4>
+                    <h4 class="title"><a href="p/${post.slug}/">${escapeHtml(post.title)}</a></h4>
                     ${post.description ? `<div class="description">${escapeHtml(post.description)}</div>` : ''}
                 </div>
             </div>`;
@@ -343,7 +343,7 @@ const renderListing = (posts) => {
 };
 
 const renderPost = (post) => {
-  const url = `${SITE_URL}/post/${post.slug}/`;
+  const url = `${SITE_URL}/p/${post.slug}/`;
   const rendered = marked.parse(post.body.replace(/^# .+\n+/, ''));
   const { html, entries } = buildToc(
     rendered.replace(/((?:src|href)=["'])\.\.\/attachments\//g, '$1../../attachments/')
@@ -384,7 +384,7 @@ const renderSitemap = (posts) => {
   const urls = [
     { loc: homeUrl, lastmod: posts[0] ? posts[0].date : '' },
     { loc: blogUrl, lastmod: posts[0] ? posts[0].date : '' },
-    ...posts.map((p) => ({ loc: `${SITE_URL}/post/${p.slug}/`, lastmod: p.date })),
+    ...posts.map((p) => ({ loc: `${SITE_URL}/p/${p.slug}/`, lastmod: p.date })),
   ];
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -403,7 +403,7 @@ Personal homepage of ${SITE_TITLE}. "Dualities" is a collection of ${BLOG_BYLINE
 
 ## Posts
 
-${posts.map((p) => `- [${p.title}](${SITE_URL}/post/${p.slug}/)${p.description ? `: ${p.description}` : ''}`).join('\n')}
+${posts.map((p) => `- [${p.title}](${SITE_URL}/p/${p.slug}/)${p.description ? `: ${p.description}` : ''}`).join('\n')}
 `;
 
 const main = () => {
@@ -422,31 +422,20 @@ const main = () => {
   const sitemap = renderSitemap(posts);
   const llms = renderLlms(posts);
 
-  const postsJson = posts.reduce((acc, p) => {
-    acc[p.slug] = {
-      title: p.title,
-      date: p.date,
-      description: p.description,
-      url: `${SITE_URL}/post/${p.slug}/`,
-      size: p.body.length,
-      content: p.body,
-    };
-    return acc;
-  }, {});
-
   fs.writeFileSync('blog.html', listing);
   fs.writeFileSync('sitemap.xml', sitemap);
   fs.writeFileSync('llms.txt', llms);
-  fs.writeFileSync('posts.json', JSON.stringify(postsJson));
 
+  fs.rmSync('./posts.json', { force: true });
   fs.rmSync('./post', { recursive: true, force: true });
-  fs.mkdirSync('./post', { recursive: true });
+  fs.rmSync('./p', { recursive: true, force: true });
+  fs.mkdirSync('./p', { recursive: true });
   for (const post of posts) {
-    fs.mkdirSync(`./post/${post.slug}`, { recursive: true });
-    fs.writeFileSync(`./post/${post.slug}/index.html`, renderPost(post));
+    fs.mkdirSync(`./p/${post.slug}`, { recursive: true });
+    fs.writeFileSync(`./p/${post.slug}/index.html`, renderPost(post));
   }
 
-  console.log(`Generated static site (${SITE_URL}): ${posts.length} posts -> blog.html, sitemap.xml, llms.txt, posts.json`);
+  console.log(`Generated static site (${SITE_URL}): ${posts.length} posts -> blog.html, p/, sitemap.xml, llms.txt`);
 };
 
 main();
