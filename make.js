@@ -9,8 +9,8 @@ const SITE_URL = (
 ).replace(/\/$/, '');
 const SITE_TITLE = 'Ravi Raj';
 const SITE_TAGLINE = 'Politics, Culture & Calculated Contradictions';
-const SITE_DESCRIPTION = 'An assorted collection of thoughts on technology, business, and life.';
-const BLOG_BYLINE = 'My unapologetic thoughts on Politics, Law, and Lies.';
+const SITE_DESCRIPTION = 'Writing and analysis on politics, culture, law, and society.';
+const BLOG_BYLINE = 'My unapologetic thoughts on politics, law, and lies.';
 const AUTHOR = 'Ravi Raj';
 const CONTENT_DIR = process.env.CONTENT_DIR || './content';
 const POSTS_DIR = path.join(CONTENT_DIR, 'posts');
@@ -207,7 +207,7 @@ const APPEARANCE_BOOTSTRAP = `
     })();
     </script>`;
 
-const shell = ({ cssPath, homePath, blogPath, imgPath, faviconPath, title, description, ogDescription = description, twitterDescription = description, tagline = SITE_TAGLINE, activeNav, canonical, jsonLd, tocBlock = '', appearanceBlock = '', scripts = [] }) => `
+const shell = ({ cssPath, homePath, blogPath, imgPath, faviconPath, title, description, ogDescription = description, twitterDescription = description, ogType = 'website', tagline = SITE_TAGLINE, activeNav, canonical, jsonLd, tocBlock = '', appearanceBlock = '', scripts = [] }) => `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -215,7 +215,7 @@ const shell = ({ cssPath, homePath, blogPath, imgPath, faviconPath, title, descr
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${escapeHtml(title)}</title>
     <meta name="description" content="${escapeHtml(description)}">
-    <meta property="og:type" content="website">
+    <meta property="og:type" content="${ogType}">
     <meta property="og:title" content="${escapeHtml(title)}">
     <meta property="og:description" content="${escapeHtml(ogDescription)}">
     <meta property="og:url" content="${canonical}">
@@ -229,7 +229,7 @@ const shell = ({ cssPath, homePath, blogPath, imgPath, faviconPath, title, descr
     <script src="${src}" defer></script>`).join('')}${APPEARANCE_BOOTSTRAP}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
 </head>
 <body>${tocBlock ? `
     ${tocBlock.trim()}` : ''}${appearanceBlock ? `
@@ -240,7 +240,7 @@ const shell = ({ cssPath, homePath, blogPath, imgPath, faviconPath, title, descr
                 <a href="${homePath}"><img src="${imgPath}" alt="Ravi Raj" class="photo" width="80" height="80" decoding="async"></a>
                 <div>
                     <h1><a href="${homePath}">${SITE_TITLE}</a></h1>
-                    <p class="tagline">${tagline}</p>
+                    <p class="tagline">${escapeHtml(tagline)}</p>
                 </div>
             </div>
             <nav class="nav">
@@ -322,10 +322,10 @@ const renderListing = (posts) => {
     imgPath: 'images/ravi.jpeg',
     faviconPath: 'images/favicon.jpeg',
     title: 'Dualities by Ravi Raj',
-    description: 'An assorted collection of works, insights, and perspectives of Ravi.',
-    ogDescription: 'Straight with facts, hard on critique and depth in analysis.',
-    twitterDescription: 'An assorted collection of works, insights, and perspectives of Ravi.',
-    tagline: 'facts, critque, analysis',
+    description: "A collection of Ravi Raj's writing, insights, and perspectives.",
+    ogDescription: 'Direct with facts, rigorous in critique, and deep in analysis.',
+    twitterDescription: "A collection of Ravi Raj's writing, insights, and perspectives.",
+    tagline: SITE_TAGLINE,
     activeNav: 'musings',
     canonical: blogUrl,
     jsonLd: '',
@@ -334,7 +334,7 @@ const renderListing = (posts) => {
     `
             <section class="page">
                 <h3 class="title kind-section">Dualities</h3>
-                <p>My assorted collection of works, insights, and perspectives on news and culture.</p>
+                <p>A collection of my writing, insights, and perspectives on news and culture.</p>
                 <div class="posts">${items}
                 </div>
             </section>
@@ -369,7 +369,8 @@ const renderPost = (post) => {
     // Only ship these when there is actually a contents panel to drive.
     scripts: toc ? ['../../js/toc.js', '../../js/appearance.js'] : [],
     title: `${post.title} - ${SITE_TITLE}`,
-    description: escapeHtml(post.description || post.title),
+    description: post.description || post.title,
+    ogType: 'article',
     activeNav: 'musings',
     canonical: url,
     jsonLd: articleJsonLd(post),
@@ -398,7 +399,7 @@ const renderLlms = (posts) => `# ${SITE_TITLE}
 
 ## About
 
-Personal homepage of ${SITE_TITLE}. "Dualities" — ${BLOG_BYLINE}
+Personal homepage of ${SITE_TITLE}. "Dualities" is a collection of ${BLOG_BYLINE.toLowerCase()}.
 
 ## Posts
 
