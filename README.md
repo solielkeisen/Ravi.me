@@ -2,7 +2,7 @@
 
 This repository contains the website renderer and static portfolio pages. Blog
 content lives in [Ravi.me-content](https://github.com/solielkeisen/Ravi.me-content),
-so posts and attachments can be uploaded without changing the website code.
+so posts can be published without changing the website code.
 
 ## How updates work
 
@@ -24,9 +24,6 @@ repository. Post pages are available at `/p/<slug>.html`.
 In `Ravi.me-content`:
 
 - Add Markdown posts as `posts/<slug>.md`.
-- Upload images and other files to `attachments/`.
-- Link an attachment from a post using a path relative to `posts/`, for example
-  `![Alt text](../attachments/photo.jpg)`.
 - Commit changes to `main`; the website rebuild and GitHub Pages publish happen
   automatically.
 

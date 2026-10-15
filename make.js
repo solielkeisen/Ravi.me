@@ -14,7 +14,6 @@ const BLOG_BYLINE = 'My unapologetic thoughts on politics, law, and lies.';
 const AUTHOR = 'Ravi Raj';
 const CONTENT_DIR = process.env.CONTENT_DIR || './content';
 const POSTS_DIR = path.join(CONTENT_DIR, 'posts');
-const ATTACHMENTS_DIR = path.join(CONTENT_DIR, 'attachments');
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 const parseFrontMatter = (content) => {
@@ -345,9 +344,7 @@ const renderListing = (posts) => {
 const renderPost = (post) => {
   const url = `${SITE_URL}/p/${post.slug}.html`;
   const rendered = marked.parse(post.body.replace(/^# .+\n+/, ''));
-  const { html, entries } = buildToc(
-    rendered.replace(/((?:src|href)=["'])\.\.\/attachments\//g, '$1../attachments/')
-  );
+  const { html, entries } = buildToc(rendered);
   const toc = renderToc(entries);
 
   const body = `
@@ -407,16 +404,7 @@ ${posts.map((p) => `- [${p.title}](${SITE_URL}/p/${p.slug}.html)${p.description 
 `;
 
 const main = () => {
-  if (!fs.existsSync(ATTACHMENTS_DIR)) {
-    throw new Error(`Attachments directory not found: ${ATTACHMENTS_DIR}`);
-  }
-
   const posts = readPosts();
-  fs.rmSync('./attachments', { recursive: true, force: true });
-  fs.cpSync(ATTACHMENTS_DIR, './attachments', {
-    recursive: true,
-    filter: (source) => path.basename(source) !== '.gitkeep',
-  });
 
   const listing = renderListing(posts);
   const sitemap = renderSitemap(posts);
