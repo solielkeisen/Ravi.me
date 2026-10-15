@@ -207,7 +207,7 @@ const APPEARANCE_BOOTSTRAP = `
     })();
     </script>`;
 
-const shell = ({ cssPath, homePath, blogPath, imgPath, faviconPath, title, description, activeNav, canonical, jsonLd, tocBlock = '', appearanceBlock = '', scripts = [] }) => `
+const shell = ({ cssPath, homePath, blogPath, imgPath, faviconPath, title, description, ogDescription = description, twitterDescription = description, tagline = SITE_TAGLINE, activeNav, canonical, jsonLd, tocBlock = '', appearanceBlock = '', scripts = [] }) => `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -217,11 +217,11 @@ const shell = ({ cssPath, homePath, blogPath, imgPath, faviconPath, title, descr
     <meta name="description" content="${escapeHtml(description)}">
     <meta property="og:type" content="website">
     <meta property="og:title" content="${escapeHtml(title)}">
-    <meta property="og:description" content="${escapeHtml(description)}">
+    <meta property="og:description" content="${escapeHtml(ogDescription)}">
     <meta property="og:url" content="${canonical}">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="${escapeHtml(title)}">
-    <meta name="twitter:description" content="${escapeHtml(description)}">
+    <meta name="twitter:description" content="${escapeHtml(twitterDescription)}">
     <link rel="canonical" href="${canonical}">
     ${jsonLd ? `<script type="application/ld+json">${jsonLd}</script>` : ''}
     <link rel="stylesheet" href="${cssPath}">
@@ -240,7 +240,7 @@ const shell = ({ cssPath, homePath, blogPath, imgPath, faviconPath, title, descr
                 <a href="${homePath}"><img src="${imgPath}" alt="Ravi Raj" class="photo" width="80" height="80" decoding="async"></a>
                 <div>
                     <h1><a href="${homePath}">${SITE_TITLE}</a></h1>
-                    <p class="tagline">${SITE_TAGLINE}</p>
+                    <p class="tagline">${tagline}</p>
                 </div>
             </div>
             <nav class="nav">
@@ -321,8 +321,11 @@ const renderListing = (posts) => {
     blogPath: 'blog.html',
     imgPath: 'images/ravi.jpeg',
     faviconPath: 'images/favicon.jpeg',
-    title: `Dualities - ${SITE_TITLE}`,
-    description: SITE_DESCRIPTION,
+    title: 'Dualities by Ravi Raj',
+    description: 'An assorted collection of works, insights, and perspectives of Ravi.',
+    ogDescription: 'Straight with facts, hard on critique and depth in analysis.',
+    twitterDescription: 'An assorted collection of works, insights, and perspectives of Ravi.',
+    tagline: 'facts, critque, analysis',
     activeNav: 'musings',
     canonical: blogUrl,
     jsonLd: '',
@@ -331,7 +334,7 @@ const renderListing = (posts) => {
     `
             <section class="page">
                 <h3 class="title kind-section">Dualities</h3>
-                <p>${BLOG_BYLINE}</p>
+                <p>My assorted collection of works, insights, and perspectives on news and culture.</p>
                 <div class="posts">${items}
                 </div>
             </section>
