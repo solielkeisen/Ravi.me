@@ -8,7 +8,7 @@ const SITE_URL = (
   (CNAME ? `https://${CNAME}` : 'https://solielkeisen.github.io/Ravi.me')
 ).replace(/\/$/, '');
 const SITE_TITLE = 'Ravi Raj';
-const SITE_TAGLINE = 'Politics, Culture & Calculated Contradictions';
+const SITE_TAGLINE = 'facts, critique, analysis';
 const SITE_DESCRIPTION = 'Writing and analysis on politics, culture, law, and society.';
 const BLOG_BYLINE = 'My unapologetic thoughts on politics, law, and lies.';
 const AUTHOR = 'Ravi Raj';
@@ -294,7 +294,7 @@ const articleJsonLd = (post) =>
     publisher: { '@type': 'Person', name: AUTHOR, url: homeUrl },
     datePublished: post.date,
     dateModified: post.date,
-    mainEntityOfPage: `${SITE_URL}/p/${post.slug}/`,
+    mainEntityOfPage: `${SITE_URL}/p/${post.slug}.html`,
   });
 
 const renderListing = (posts) => {
@@ -308,7 +308,7 @@ const renderListing = (posts) => {
                     <span class="year">${formatYear(post.date)}</span>
                 </div>
                 <div class="body">
-                    <h4 class="title"><a href="p/${post.slug}/">${escapeHtml(post.title)}</a></h4>
+                    <h4 class="title"><a href="p/${post.slug}.html">${escapeHtml(post.title)}</a></h4>
                     ${post.description ? `<div class="description">${escapeHtml(post.description)}</div>` : ''}
                 </div>
             </div>`;
@@ -343,10 +343,10 @@ const renderListing = (posts) => {
 };
 
 const renderPost = (post) => {
-  const url = `${SITE_URL}/p/${post.slug}/`;
+  const url = `${SITE_URL}/p/${post.slug}.html`;
   const rendered = marked.parse(post.body.replace(/^# .+\n+/, ''));
   const { html, entries } = buildToc(
-    rendered.replace(/((?:src|href)=["'])\.\.\/attachments\//g, '$1../../attachments/')
+    rendered.replace(/((?:src|href)=["'])\.\.\/attachments\//g, '$1../attachments/')
   );
   const toc = renderToc(entries);
 
@@ -361,13 +361,13 @@ const renderPost = (post) => {
     `;
 
   return shell({
-    cssPath: '../../css/style.css',
-    homePath: '../../index.html',
-    blogPath: '../../blog.html',
-    imgPath: '../../images/ravi.jpeg',
-    faviconPath: '../../images/favicon.jpeg',
+    cssPath: '../css/style.css',
+    homePath: '../index.html',
+    blogPath: '../blog.html',
+    imgPath: '../images/ravi.jpeg',
+    faviconPath: '../images/favicon.jpeg',
     // Only ship these when there is actually a contents panel to drive.
-    scripts: toc ? ['../../js/toc.js', '../../js/appearance.js'] : [],
+    scripts: toc ? ['../js/toc.js', '../js/appearance.js'] : [],
     title: `${post.title} - ${SITE_TITLE}`,
     description: post.description || post.title,
     ogType: 'article',
@@ -384,7 +384,7 @@ const renderSitemap = (posts) => {
   const urls = [
     { loc: homeUrl, lastmod: posts[0] ? posts[0].date : '' },
     { loc: blogUrl, lastmod: posts[0] ? posts[0].date : '' },
-    ...posts.map((p) => ({ loc: `${SITE_URL}/p/${p.slug}/`, lastmod: p.date })),
+    ...posts.map((p) => ({ loc: `${SITE_URL}/p/${p.slug}.html`, lastmod: p.date })),
   ];
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -403,7 +403,7 @@ Personal homepage of ${SITE_TITLE}. "Dualities" is a collection of ${BLOG_BYLINE
 
 ## Posts
 
-${posts.map((p) => `- [${p.title}](${SITE_URL}/p/${p.slug}/)${p.description ? `: ${p.description}` : ''}`).join('\n')}
+${posts.map((p) => `- [${p.title}](${SITE_URL}/p/${p.slug}.html)${p.description ? `: ${p.description}` : ''}`).join('\n')}
 `;
 
 const main = () => {
@@ -431,11 +431,10 @@ const main = () => {
   fs.rmSync('./p', { recursive: true, force: true });
   fs.mkdirSync('./p', { recursive: true });
   for (const post of posts) {
-    fs.mkdirSync(`./p/${post.slug}`, { recursive: true });
-    fs.writeFileSync(`./p/${post.slug}/index.html`, renderPost(post));
+    fs.writeFileSync(`./p/${post.slug}.html`, renderPost(post));
   }
 
-  console.log(`Generated static site (${SITE_URL}): ${posts.length} posts -> blog.html, p/, sitemap.xml, llms.txt`);
+  console.log(`Generated static site (${SITE_URL}): ${posts.length} posts -> blog.html, p/*.html, sitemap.xml, llms.txt`);
 };
 
 main();
